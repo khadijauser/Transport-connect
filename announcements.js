@@ -1,9 +1,7 @@
 const Announcement = require('../models/Announcement');
 const { validationResult } = require('express-validator');
 
-// @desc    Créer une annonce
-// @route   POST /api/announcements
-// @access  Private (Conducteur)
+
 exports.createAnnouncement = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -29,9 +27,7 @@ exports.createAnnouncement = async (req, res) => {
   }
 };
 
-// @desc    Obtenir toutes les annonces
-// @route   GET /api/announcements
-// @access  Public
+
 exports.getAnnouncements = async (req, res) => {
   try {
     const { departure, destination, date, cargoType } = req.query;
@@ -68,9 +64,6 @@ exports.getAnnouncements = async (req, res) => {
   }
 };
 
-// @desc    Obtenir une annonce
-// @route   GET //announcements/:id
-// @access  Public
 exports.getAnnouncement = async (req, res) => {
   try {
     const announcement = await Announcement.findById(req.params.id)
@@ -103,9 +96,7 @@ exports.getAnnouncement = async (req, res) => {
   }
 };
 
-// @desc    Mettre à jour une annonce
-// @route   PUT /api/announcements/:id
-// @access  Private (Conducteur)
+
 exports.updateAnnouncement = async (req, res) => {
   try {
     let announcement = await Announcement.findById(req.params.id);
@@ -117,7 +108,6 @@ exports.updateAnnouncement = async (req, res) => {
       });
     }
 
-    // Vérifier si l'utilisateur est le propriétaire de l'annonce
     if (announcement.driver.toString() !== req.user.id) {
       return res.status(401).json({
         success: false,
@@ -147,9 +137,7 @@ exports.updateAnnouncement = async (req, res) => {
   }
 };
 
-// @desc    Supprimer une annonce
-// @route   DELETE /api/announcements/:id
-// @access  Private (Conducteur)
+
 exports.deleteAnnouncement = async (req, res) => {
   try {
     const announcement = await Announcement.findById(req.params.id);
@@ -161,7 +149,6 @@ exports.deleteAnnouncement = async (req, res) => {
       });
     }
 
-    // Vérifier si l'utilisateur est le propriétaire de l'annonce
     if (announcement.driver.toString() !== req.user.id) {
       return res.status(401).json({
         success: false,
