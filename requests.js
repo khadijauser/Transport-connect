@@ -3,9 +3,7 @@ const Announcement = require('../models/Announcement');
 const { validationResult } = require('express-validator');
 const sendEmail = require('../utils/sendEmail');
 
-// @desc    Créer une demande
-// @route   POST /api/requests
-// @access  Private
+
 exports.createRequest = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -21,7 +19,7 @@ exports.createRequest = async (req, res) => {
       });
     }
 
-    // Vérifier si l'annonce est active
+ 
     if (announcement.status !== 'active') {
       return res.status(400).json({
         success: false,
@@ -29,7 +27,7 @@ exports.createRequest = async (req, res) => {
       });
     }
 
-    // Vérifier si l'utilisateur a déjà fait une demande pour cette annonce
+    
     const existingRequest = await Request.findOne({
       announcement: req.body.announcement,
       sender: req.user.id
@@ -47,11 +45,11 @@ exports.createRequest = async (req, res) => {
       sender: req.user.id
     });
 
-    // Ajouter la demande à l'annonce
+   
     announcement.requests.push(request._id);
     await announcement.save();
 
-    // Envoyer une notification au conducteur
+    
     const message = `Nouvelle demande de transport pour votre annonce ${announcement._id}`;
     await sendEmail({
       email: announcement.driver.email,
@@ -72,9 +70,7 @@ exports.createRequest = async (req, res) => {
   }
 };
 
-// @desc    Obtenir toutes les demandes d'un utilisateur
-// @route   GET /api/requests
-// @access  Private
+
 exports.getRequests = async (req, res) => {
   try {
     const requests = await Request.find({ sender: req.user.id })
@@ -96,9 +92,7 @@ exports.getRequests = async (req, res) => {
   }
 };
 
-// @desc    Obtenir une demande
-// @route   GET /api/requests/:id
-// @access  Private
+
 exports.getRequest = async (req, res) => {
   try {
     const request = await Request.findById(req.params.id)
@@ -112,7 +106,6 @@ exports.getRequest = async (req, res) => {
       });
     }
 
-    // Vérifier si l'utilisateur est autorisé à voir cette demande
     if (request.sender.toString() !== req.user.id && 
         request.announcement.driver.toString() !== req.user.id) {
       return res.status(401).json({
@@ -134,9 +127,7 @@ exports.getRequest = async (req, res) => {
   }
 };
 
-// @desc    Mettre à jour le statut d'une demande
-// @route   PUT /api/requests/:id/status
-// @access  Private (Conducteur)
+
 exports.updateRequestStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -150,7 +141,6 @@ exports.updateRequestStatus = async (req, res) => {
       });
     }
 
-    // Vérifier si l'utilisateur est le conducteur de l'annonce
     if (request.announcement.driver.toString() !== req.user.id) {
       return res.status(401).json({
         success: false,
@@ -161,7 +151,6 @@ exports.updateRequestStatus = async (req, res) => {
     request.status = status;
     await request.save();
 
-    // Envoyer une notification à l'expéditeur
     const message = `Votre demande de transport a été ${status}`;
     await sendEmail({
       email: request.sender.email,
@@ -182,9 +171,7 @@ exports.updateRequestStatus = async (req, res) => {
   }
 };
 
-// @desc    Ajouter un message à une demande
-// @route   POST /api/requests/:id/messages
-// @access  Private
+
 exports.addMessage = async (req, res) => {
   try {
     const { content } = req.body;
@@ -198,7 +185,6 @@ exports.addMessage = async (req, res) => {
       });
     }
 
-    // Vérifier si l'utilisateur est autorisé à envoyer un message
     if (request.sender.toString() !== req.user.id && 
         request.announcement.driver.toString() !== req.user.id) {
       return res.status(401).json({
