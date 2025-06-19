@@ -2,7 +2,7 @@ const User = require('../models/User');
 const Announcement = require('../models/Announcement');
 const TransportRequest = require('../models/TransportRequest');
 
-// Get admin dashboard statistics
+
 exports.getDashboardStats = async (req, res) => {
   try {
     const [
@@ -31,7 +31,7 @@ exports.getDashboardStats = async (req, res) => {
   }
 };
 
-// Get all users
+
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.find().select('-password');
@@ -41,7 +41,7 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-// Update user status
+
 exports.updateUserStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -61,7 +61,7 @@ exports.updateUserStatus = async (req, res) => {
   }
 };
 
-// Get all announcements
+
 exports.getAnnouncements = async (req, res) => {
   try {
     const announcements = await Announcement.find()
@@ -73,7 +73,7 @@ exports.getAnnouncements = async (req, res) => {
   }
 };
 
-// Update announcement status
+
 exports.updateAnnouncementStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -93,7 +93,6 @@ exports.updateAnnouncementStatus = async (req, res) => {
   }
 };
 
-// Get all transport requests
 exports.getRequests = async (req, res) => {
   try {
     const requests = await TransportRequest.find()
@@ -106,7 +105,7 @@ exports.getRequests = async (req, res) => {
   }
 };
 
-// Update transport request status
+
 exports.updateRequestStatus = async (req, res) => {
   try {
     const { status } = req.body;
