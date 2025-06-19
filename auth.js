@@ -2,9 +2,6 @@ const User = require('../models/User');
 const { validationResult } = require('express-validator');
 const sendEmail = require('../utils/sendEmail');
 
-// @desc    Inscription utilisateur
-// @route   POST /api/auth/register
-// @access  Public
 exports.register = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -14,7 +11,7 @@ exports.register = async (req, res) => {
   const { firstName, lastName, email, phone, password, role } = req.body;
 
   try {
-    // Vérifier si l'utilisateur existe déjà
+    
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({
@@ -23,7 +20,6 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Créer l'utilisateur
     user = await User.create({
       firstName,
       lastName,
@@ -33,7 +29,6 @@ exports.register = async (req, res) => {
       role: role || 'user'
     });
 
-    // Envoyer un email de bienvenue
     const message = `Bienvenue sur TransportConnect ${firstName}!`;
     await sendEmail({
       email: user.email,
@@ -51,9 +46,7 @@ exports.register = async (req, res) => {
   }
 };
 
-// @desc    Connexion utilisateur
-// @route   POST //auth/login
-// @access  Public
+
 exports.login = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -63,7 +56,7 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Vérifier si l'utilisateur existe
+    
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({
@@ -72,7 +65,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Vérifier le mot de passe
+  
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       return res.status(401).json({
@@ -91,9 +84,6 @@ exports.login = async (req, res) => {
   }
 };
 
-// @desc    Déconnexion utilisateur
-// @route   GET /api/auth/logout
-// @access  Private
 exports.logout = async (req, res) => {
   res.status(200).json({
     success: true,
@@ -101,9 +91,7 @@ exports.logout = async (req, res) => {
   });
 };
 
-// @desc    Obtenir l'utilisateur courant
-// @route   GET /api/auth/me
-// @access  Private
+
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -120,7 +108,6 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// Helper pour envoyer la réponse avec le token
 const sendTokenResponse = (user, statusCode, res) => {
   const token = user.getSignedJwtToken();
 
