@@ -2,9 +2,7 @@ const Rating = require('../models/Rating');
 const Request = require('../models/Request');
 const { validationResult } = require('express-validator');
 
-// @desc    Créer une évaluation
-// @route   POST /api/ratings
-// @access  Private
+
 exports.createRating = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -20,7 +18,7 @@ exports.createRating = async (req, res) => {
       });
     }
 
-    // Vérifier si la demande est terminée
+   
     if (request.status !== 'completed') {
       return res.status(400).json({
         success: false,
@@ -28,7 +26,7 @@ exports.createRating = async (req, res) => {
       });
     }
 
-    // Vérifier si l'utilisateur a déjà évalué cette demande
+   
     const existingRating = await Rating.findOne({
       request: req.body.request,
       rater: req.user.id
@@ -41,7 +39,7 @@ exports.createRating = async (req, res) => {
       });
     }
 
-    // Déterminer qui est évalué (conducteur ou expéditeur)
+   
     const rated = request.sender.toString() === req.user.id
       ? request.announcement.driver
       : request.sender;
@@ -65,9 +63,6 @@ exports.createRating = async (req, res) => {
   }
 };
 
-// @desc    Obtenir les évaluations d'un utilisateur
-// @route   GET /api/ratings/user/:userId
-// @access  Public
 exports.getUserRatings = async (req, res) => {
   try {
     const ratings = await Rating.find({ rated: req.params.userId })
@@ -89,9 +84,7 @@ exports.getUserRatings = async (req, res) => {
   }
 };
 
-// @desc    Obtenir une évaluation
-// @route   GET /api/ratings/:id
-// @access  Public
+
 exports.getRating = async (req, res) => {
   try {
     const rating = await Rating.findById(req.params.id)
@@ -119,9 +112,7 @@ exports.getRating = async (req, res) => {
   }
 };
 
-// @desc    Mettre à jour une évaluation
-// @route   PUT /api/ratings/:id
-// @access  Private
+
 exports.updateRating = async (req, res) => {
   try {
     let rating = await Rating.findById(req.params.id);
@@ -133,7 +124,6 @@ exports.updateRating = async (req, res) => {
       });
     }
 
-    // Vérifier si l'utilisateur est l'auteur de l'évaluation
     if (rating.rater.toString() !== req.user.id) {
       return res.status(401).json({
         success: false,
@@ -163,9 +153,7 @@ exports.updateRating = async (req, res) => {
   }
 };
 
-// @desc    Supprimer une évaluation
-// @route   DELETE /api/ratings/:id
-// @access  Private
+
 exports.deleteRating = async (req, res) => {
   try {
     const rating = await Rating.findById(req.params.id);
@@ -177,7 +165,7 @@ exports.deleteRating = async (req, res) => {
       });
     }
 
-    // Vérifier si l'utilisateur est l'auteur de l'évaluation
+   
     if (rating.rater.toString() !== req.user.id) {
       return res.status(401).json({
         success: false,
