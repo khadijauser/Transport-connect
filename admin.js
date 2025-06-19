@@ -3,9 +3,7 @@ const Announcement = require('../models/Announcement');
 const Request = require('../models/Request');
 const Rating = require('../models/Rating');
 
-// @desc    Obtenir les statistiques générales
-// @route   GET /api/admin/stats
-// @access  Private (Admin)
+
 exports.getStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
@@ -14,11 +12,10 @@ exports.getStats = async (req, res) => {
     const totalRequests = await Request.countDocuments();
     const totalRatings = await Rating.countDocuments();
 
-    // Calculer le taux d'acceptation des demandes
+   
     const acceptedRequests = await Request.countDocuments({ status: 'accepted' });
     const acceptanceRate = (acceptedRequests / totalRequests) * 100;
 
-    // Obtenir les utilisateurs actifs (ayant créé une annonce ou fait une demande dans les 30 derniers jours)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -50,9 +47,7 @@ exports.getStats = async (req, res) => {
   }
 };
 
-// @desc    Obtenir tous les utilisateurs
-// @route   GET /api/admin/users
-// @access  Private (Admin)
+
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.find()
@@ -73,9 +68,6 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-// @desc    Mettre à jour le statut d'un utilisateur
-// @route   PUT /api/admin/users/:id
-// @access  Private (Admin)
 exports.updateUserStatus = async (req, res) => {
   try {
     const { isVerified } = req.body;
@@ -108,9 +100,6 @@ exports.updateUserStatus = async (req, res) => {
   }
 };
 
-// @desc    Obtenir toutes les annonces
-// @route   GET /api/admin/announcements
-// @access  Private (Admin)
 exports.getAnnouncements = async (req, res) => {
   try {
     const announcements = await Announcement.find()
