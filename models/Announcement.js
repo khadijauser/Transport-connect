@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const announcementSchema = new mongoose.Schema(
   {
-    user: {
+    shipper: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -27,58 +27,22 @@ const announcementSchema = new mongoose.Schema(
       default: 'active',
     },
     origin: {
-      address: {
-        type: String,
-        required: true,
-      },
-      city: {
-        type: String,
-        required: true,
-      },
-      postalCode: {
-        type: String,
-        required: true,
-      },
-      country: {
-        type: String,
-        required: true,
-      },
+      address: { type: String, required: true },
+      city: { type: String, required: true },
+      postalCode: { type: String, required: true },
+      country: { type: String, required: true },
     },
     destination: {
-      address: {
-        type: String,
-        required: true,
-      },
-      city: {
-        type: String,
-        required: true,
-      },
-      postalCode: {
-        type: String,
-        required: true,
-      },
-      country: {
-        type: String,
-        required: true,
-      },
+      address: { type: String, required: true },
+      city: { type: String, required: true },
+      postalCode: { type: String, required: true },
+      country: { type: String, required: true },
     },
     dimensions: {
-      weight: {
-        type: Number,
-        required: true,
-      },
-      length: {
-        type: Number,
-        required: true,
-      },
-      width: {
-        type: Number,
-        required: true,
-      },
-      height: {
-        type: Number,
-        required: true,
-      },
+      weight: { type: Number, required: true },
+      length: { type: Number, required: true },
+      width: { type: Number, required: true },
+      height: { type: Number, required: true },
     },
     price: {
       type: Number,
@@ -88,18 +52,20 @@ const announcementSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    transportRequests: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'TransportRequest',
-    }],
+    transportRequests: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'TransportRequest',
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
 
-announcementSchema.index({ 'departure.location': 'text', 'destination.location': 'text' });
+announcementSchema.index({ 'origin.city': 'text', 'destination.city': 'text' });
 
 const Announcement = mongoose.model('Announcement', announcementSchema);
 
-module.exports = Announcement; 
+module.exports = Announcement;

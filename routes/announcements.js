@@ -1,28 +1,8 @@
 const express = require('express');
-const { check } = require('express-validator');
-const {
-  createAnnouncement,
-  getAnnouncements,
-  getAnnouncement,
-  updateAnnouncement,
-  deleteAnnouncement
-} = require('../controllers/announcements');
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorizeRoles } = require('../middleware/auth'); // ✅ تم استدعاء authorizeRoles
 const Announcement = require('../models/Announcement');
 
 const router = express.Router();
-
-const announcementValidation = [
-  check('departure.location', 'Le lieu de départ est requis').not().isEmpty(),
-  check('departure.date', 'La date de départ est requise').not().isEmpty(),
-  check('destination.location', 'La destination est requise').not().isEmpty(),
-  check('destination.date', 'La date d\'arrivée est requise').not().isEmpty(),
-  check('cargoDetails.maxWeight', 'Le poids maximum est requis').isNumeric(),
-  check('cargoDetails.cargoType', 'Le type de marchandise est requis').not().isEmpty(),
-  check('availableCapacity', 'La capacité disponible est requise').isNumeric(),
-  check('price', 'Le prix est requis').isNumeric()
-];
-
 
 router.get('/', async (req, res) => {
   try {
@@ -40,21 +20,40 @@ router.get('/:id', async (req, res) => {
   try {
     const announcement = await Announcement.findById(req.params.id)
       .populate('user', 'firstName lastName email');
-    
     if (!announcement) {
       return res.status(404).json({ message: 'Annonce non trouvée' });
     }
-    
     res.json(announcement);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, authorizeRoles('expediteur'), async (req, res) => {
+  const {
+    title, description, type, price, deadline,
+    origin, destination, dimensions
+  } = req.body;
+
+  if (
+    !title || !description || !type || !price || !deadline ||
+    !origin || !origin.address || !origin.city || !origin.postalCode || !origin.country ||
+    !destination || !destination.address || !destination.city || !destination.postalCode || !destination.country ||
+    !dimensions || !dimensions.weight || !dimensions.length || !dimensions.width || !dimensions.height
+  ) {
+    return res.status(400).json({ message: 'Tous les champs sont requis.' });
+  }
+
   try {
     const announcement = new Announcement({
-      ...req.body,
+      title,
+      description,
+      type,
+      price,
+      deadline,
+      origin,
+      destination,
+      dimensions,
       user: req.user._id,
     });
 
@@ -65,40 +64,34 @@ router.post('/', protect, async (req, res) => {
   }
 });
 
-
 router.put('/:id', protect, async (req, res) => {
   try {
     const announcement = await Announcement.findById(req.params.id);
-
     if (!announcement) {
       return res.status(404).json({ message: 'Annonce non trouvée' });
     }
 
-    if (announcement.user.toString() !== req.user._id.toString()) {
+    if (!req.user.isAdmin && announcement.user.toString() !== req.user._id.toString()) {
       return res.status(401).json({ message: 'Non autorisé' });
     }
 
-    const updatedAnnouncement = await Announcement.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-
-    res.json(updatedAnnouncement);
+    Object.assign(announcement, req.body); 
+    const updated = await announcement.save();
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
+
 router.delete('/:id', protect, async (req, res) => {
   try {
     const announcement = await Announcement.findById(req.params.id);
-
     if (!announcement) {
       return res.status(404).json({ message: 'Annonce non trouvée' });
     }
 
-    if (announcement.user.toString() !== req.user._id.toString()) {
+    if (!req.user.isAdmin && announcement.user.toString() !== req.user._id.toString()) {
       return res.status(401).json({ message: 'Non autorisé' });
     }
 
@@ -109,4 +102,4 @@ router.delete('/:id', protect, async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;

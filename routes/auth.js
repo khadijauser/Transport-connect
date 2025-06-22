@@ -4,8 +4,9 @@ const {
   register,
   login,
   logout,
-  getMe
-} = require('../controllers/auth');
+  getMe,
+  createAdmin
+} = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
@@ -25,6 +26,7 @@ const loginValidation = [
 
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
+router.post('/create-admin', registerValidation, createAdmin);
 router.get('/logout', protect, logout);
 router.get('/me', protect, getMe);
 

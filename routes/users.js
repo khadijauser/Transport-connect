@@ -12,6 +12,11 @@ router.get('/profile', protect, async (req, res) => {
   }
 });
 
+
+
+
+
+
 router.put('/profile', protect, async (req, res) => {
   try {
     const { firstName, lastName, company, phone } = req.body;

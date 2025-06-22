@@ -7,7 +7,7 @@ const {
   updateRequestStatus,
   addMessage
 } = require('../controllers/requests');
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorizeRoles } = require('../middleware/auth'); 
 
 const router = express.Router();
 
@@ -34,7 +34,7 @@ const messageValidation = [
 router
   .route('/')
   .get(protect, getRequests)
-  .post(protect, requestValidation, createRequest);
+  .post(protect, authorizeRoles('conducteur'), requestValidation, createRequest);
 
 router
   .route('/:id')
@@ -42,10 +42,10 @@ router
 
 router
   .route('/:id/status')
-  .put(protect, authorize('driver'), statusValidation, updateRequestStatus);
+  .put(protect, authorizeRoles('conducteur'), statusValidation, updateRequestStatus);
 
 router
   .route('/:id/messages')
   .post(protect, messageValidation, addMessage);
 
-module.exports = router; 
+module.exports = router;

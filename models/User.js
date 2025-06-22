@@ -26,16 +26,25 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
     role: {
       type: String,
-      enum: ['user', 'carrier', 'admin'],
-      default: 'user',
+      enum: ['expediteur', 'conducteur', 'admin'],
+      default: 'expediteur',
     },
-   
+    company: {
+     type: String,
+     trim: true,
+    },
+
     phone: {
       type: String,
       trim: true,
     },
+    
     status: {
       type: String,
       enum: ['active', 'suspended'],
@@ -49,7 +58,7 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  
+
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -59,9 +68,9 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-userSchema.methods.getSignedJwtToken = function() {
+userSchema.methods.getSignedJwtToken = function () {
   return jwt.sign(
-    { id: this._id, role: this.role },
+    { id: this._id, isAdmin: this.isAdmin, role: this.role },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRE }
   );
@@ -73,4 +82,4 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 
 const User = mongoose.model('User', userSchema);
 
-module.exports = User; 
+module.exports = User;

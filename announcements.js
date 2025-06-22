@@ -8,10 +8,18 @@ exports.createAnnouncement = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
+  // ✅ Restrict access to expediteurs only
+  if (req.user.role !== 'expediteur') {
+    return res.status(403).json({
+      success: false,
+      message: 'Seuls les expéditeurs peuvent créer une annonce',
+    });
+  }
+
   try {
     const announcement = await Announcement.create({
       ...req.body,
-      driver: req.user.id
+      shipper: req.user.id, // 👍 Instead of driver
     });
 
     res.status(201).json({
@@ -26,6 +34,7 @@ exports.createAnnouncement = async (req, res) => {
     });
   }
 };
+
 
 
 exports.getAnnouncements = async (req, res) => {
@@ -108,7 +117,7 @@ exports.updateAnnouncement = async (req, res) => {
       });
     }
 
-    if (announcement.driver.toString() !== req.user.id) {
+    if (announcement.shipper.toString() !== req.user.id) {
       return res.status(401).json({
         success: false,
         message: 'Non autorisé à modifier cette annonce'
@@ -149,7 +158,7 @@ exports.deleteAnnouncement = async (req, res) => {
       });
     }
 
-    if (announcement.driver.toString() !== req.user.id) {
+    if (announcement.shipper.toString() !== req.user.id) {
       return res.status(401).json({
         success: false,
         message: 'Non autorisé à supprimer cette annonce'

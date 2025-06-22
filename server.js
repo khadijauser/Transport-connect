@@ -58,7 +58,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/announcements', announcementRoutes);
-
+app.use('/api/requests', require('./routes/requests'));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
